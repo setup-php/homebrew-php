@@ -1,0 +1,54 @@
+name: GitHub-hosted PHP runner
+run-name: Hosted runner ${{ inputs.pool }}
+
+on:
+  push:
+    branches: [feature/ephemeral-runner-pool]
+    paths:
+      - .github/workflows/hosted-runner.yml
+      - Scripts/**
+      - tests/**
+  workflow_dispatch:
+    inputs:
+      pool:
+        description: Prepared environment for one ephemeral runner
+        required: true
+        type: string
+      profile:
+        description: Native OS and architecture required by the queued job
+        required: true
+        type: choice
+        options: [macos15, macos26, xcode27, linux-x64, linux-arm64]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: nscloud-ubuntu-24.04-amd64-2x4
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tests -v
+
+  runner:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    name: Single-job ${{ inputs.profile }} runner
+    runs-on: ${{ fromJSON('{"macos15":"macos-15","macos26":"macos-26","xcode27":"xcode-27","linux-x64":"ubuntu-24.04","linux-arm64":"ubuntu-22.04-arm"}')[inputs.profile] }}
+    timeout-minutes: 360
+    environment: ${{ inputs.pool }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Serve one job and retire the host
+        env:
+          POOL: ${{ inputs.pool }}
+          HOSTED_PROFILE: ${{ inputs.profile }}
+          RUNNER_REGISTRATION_TOKEN: ${{ secrets.RUNNER_REGISTRATION_TOKEN }}
+        run: python Scripts/hosted_runner.py
