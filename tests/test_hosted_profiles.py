@@ -55,6 +55,7 @@ class HostedProfilesTests(unittest.TestCase):
             ('macos26', 'Darwin', 'arm64', '26.7.3'),
             ('xcode27', 'Darwin', 'arm64', '27.2'),
             ('linux-x64', 'Linux', 'x86_64', '24.04'),
+            ('linux22-x64', 'Linux', 'x86_64', '22.04'),
             ('linux-arm64', 'Linux', 'aarch64', '22.04'),
         ]:
             profile = PROFILES[key]

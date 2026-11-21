@@ -18,7 +18,7 @@ on:
         description: Native OS and architecture required by the queued job
         required: true
         type: choice
-        options: [macos15, macos26, xcode27, linux-x64, linux-arm64]
+        options: [macos15, macos26, xcode27, linux-x64, linux22-x64, linux-arm64]
 
 permissions:
   contents: read
@@ -36,7 +36,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     name: Single-job ${{ inputs.profile }} runner
-    runs-on: ${{ fromJSON('{"macos15":"macos-15","macos26":"macos-26","xcode27":"xcode-27","linux-x64":"ubuntu-24.04","linux-arm64":"ubuntu-22.04-arm"}')[inputs.profile] }}
+    runs-on: ${{ fromJSON('{"macos15":"macos-15","macos26":"macos-26","xcode27":"xcode-27","linux-x64":"ubuntu-24.04","linux22-x64":"ubuntu-22.04","linux-arm64":"ubuntu-22.04-arm"}')[inputs.profile] }}
     timeout-minutes: 360
     environment: ${{ inputs.pool }}
     steps:

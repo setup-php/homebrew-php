@@ -8,6 +8,7 @@ PROFILES = {
     'macos26': {'image': 'macos-26', 'platform': 'macos-26', 'arch': 'arm64', 'macos': True},
     'xcode27': {'image': 'xcode-27', 'platform': 'xcode-27', 'arch': 'arm64', 'macos': True},
     'linux-x64': {'image': 'ubuntu-24.04', 'platform': 'ubuntu-latest', 'arch': 'x64', 'macos': False},
+    'linux22-x64': {'image': 'ubuntu-22.04', 'platform': 'ubuntu-22.04', 'arch': 'x64', 'macos': False},
     'linux-arm64': {'image': 'ubuntu-22.04-arm', 'platform': 'ubuntu-22.04', 'arch': 'arm64', 'macos': False},
 }
 PREFIX = 'runner-pool-gh-php-'
