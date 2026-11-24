@@ -35,7 +35,7 @@ for key, image, label, platform, arch in (
     PROFILES[key] = {
         'prefix': f'runner-pool-hb-{key}-', 'arch': arch, 'platform': platform,
         'image': image, 'labels': (label,), 'system': 'Linux',
-        'workflow': 'managed-runner.yml', 'limit': 12,
+        'workflow': 'managed-runner.yml', 'limit': 60,
     }
 
 

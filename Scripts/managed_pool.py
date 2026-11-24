@@ -111,7 +111,7 @@ def plan_launches(protected, runners, jobs, capacity, linux_x64=0, linux_arm64=0
         if budget[group] <= 0:
             deferred[key] += 1
             continue
-        number = next(slot for slot in range(1, MAX_HOSTS + 1) if slot not in occupied[key])
+        number = next(slot for slot in range(1, PROFILES[key]['limit'] + 1) if slot not in occupied[key])
         occupied[key].add(number)
         planned.append((key, number))
         budget[group] -= 1
@@ -148,8 +148,11 @@ def maintain():
     capacity = int(os.environ.get('HOST_CAPACITY', str(MAX_HOSTS)))
     linux_x64 = int(os.environ.get('LINUX_X64_CAPACITY', '0'))
     linux_arm64 = int(os.environ.get('LINUX_ARM64_CAPACITY', '0'))
-    if not all(0 <= n <= MAX_HOSTS for n in (capacity, linux_x64, linux_arm64)):
-        raise ValueError('Pool capacities must be between zero and twelve')
+    if not 0 <= capacity <= MAX_HOSTS:
+        raise ValueError('HOST_CAPACITY must be between zero and twelve')
+    for key, count in (('linux-x64', linux_x64), ('linux-arm64', linux_arm64)):
+        if not 0 <= count <= PROFILES[key]['limit']:
+            raise ValueError(f'Invalid capacity for {key}: {count}')
     dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
     now = datetime.datetime.now(datetime.timezone.utc)
     since = (now - datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%SZ')

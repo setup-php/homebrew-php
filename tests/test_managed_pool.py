@@ -51,6 +51,9 @@ class DemandPoolTests(unittest.TestCase):
             {busy['name']}, [busy], jobs, capacity=1, linux_x64=2, linux_arm64=1)
         self.assertEqual(planned, [('linux-x64', 1), ('linux-arm64', 1), ('macos15', 1)])
         self.assertEqual(deferred['linux22-x64'], 1)
+        linux_jobs = [job(i, 'linux-x64') for i in range(20)]
+        slots, _, _, _ = controller.plan_launches(set(), [], linux_jobs, capacity=0, linux_x64=20)
+        self.assertEqual(slots[-1], ('linux-x64', 20))
         self.assertIsNone(controller.matching_profile({'labels': ['ubuntu-22.04-arm', 'X64']}))
 
     def test_completed_running_or_already_assigned_jobs_do_not_create_hosts(self):
