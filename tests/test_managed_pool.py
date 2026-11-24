@@ -44,6 +44,16 @@ class DemandPoolTests(unittest.TestCase):
         for unsupported in ([], ['macOS'], ['self-hosted'], ['ubuntu-20.04'], ['macos-26', 'X64'], ['macos-15', 'custom']):
             self.assertIsNone(controller.matching_profile({'labels': unsupported}))
 
+    def test_bottle_host_requires_homebrew_landlock_abi(self):
+        with patch.object(runner.ctypes, 'CDLL') as libc:
+            for result in (-1, 0, 1):
+                libc.return_value.syscall.return_value = result
+                with self.assertRaises(RuntimeError):
+                    runner.check_bottle_sandbox()
+            libc.return_value.syscall.return_value = 2
+            runner.check_bottle_sandbox()
+            libc.return_value.syscall.assert_called_with(444, None, 0, 1)
+
     def test_native_linux_queues_use_separate_architecture_budgets(self):
         jobs = [job(1, 'linux-x64'), job(2, 'linux22-x64'), job(3, 'linux-arm64'), job(4)]
         busy = registration('linux22-x64', busy=True)

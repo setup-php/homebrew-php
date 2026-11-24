@@ -1,4 +1,5 @@
 """Serve exactly one Homebrew job, then destroy the disposable native host."""
+import ctypes
 import os
 from pathlib import Path
 import platform
@@ -23,6 +24,17 @@ def validate_namespace_shape(cpu_count, memory_bytes):
     # Accept either decimal GB or GiB reporting for the requested 4x7 shape.
     if cpu_count != 4 or not 7_000_000_000 <= memory_bytes <= 7 * 1024 ** 3:
         raise ValueError('Expected a Namespace 4-vCPU/7-GB macOS host')
+
+
+def check_bottle_sandbox():
+    # On x86_64 and aarch64, query the Landlock ABI exactly as Homebrew does.
+    # This does not create a ruleset or change the process's access rights.
+    landlock_create_ruleset = 444
+    version_flag = 1
+    abi = ctypes.CDLL(None, use_errno=True).syscall(landlock_create_ruleset, None, 0, version_flag)
+    if abi < 2:
+        print(f'::error::Homebrew bottle jobs require Landlock ABI 2 or newer (returned {abi}).', flush=True)
+        raise RuntimeError('Incompatible Homebrew Linux host')
 
 
 def serve_job(directory, env, log, accept_seconds=ACCEPT_SECONDS, max_seconds=MAX_SECONDS):
@@ -75,6 +87,8 @@ def serve():
     system = platform.system()
     version = platform.freedesktop_os_release()['VERSION_ID'] if system == 'Linux' else platform.mac_ver()[0]
     validate(key, system, platform.machine(), version)
+    if key in ('linux-x64', 'linux-arm64'):
+        check_bottle_sandbox()
     if system == 'Darwin':
         cpus = int(subprocess.check_output(['sysctl', '-n', 'hw.ncpu'], text=True))
         memory = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True))
