@@ -42,7 +42,10 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     name: Single-job ${{ inputs.image }} runner
-    runs-on: ${{ inputs.image }}
+    runs-on: >-
+      ${{ fromJSON(startsWith(inputs.image, 'nscloud-ubuntu-')
+          && format('["{0}-with-features","namespace-features:linux.landlock=enabled"]', inputs.image)
+          || format('["{0}"]', inputs.image)) }}
     timeout-minutes: 360
     environment: ${{ inputs.pool }}
     steps:

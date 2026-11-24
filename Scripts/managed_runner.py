@@ -35,6 +35,7 @@ def check_bottle_sandbox():
     if abi < 2:
         print(f'::error::Homebrew bottle jobs require Landlock ABI 2 or newer (returned {abi}).', flush=True)
         raise RuntimeError('Incompatible Homebrew Linux host')
+    print(f'Homebrew Linux sandbox verified: Landlock ABI {abi}.', flush=True)
 
 
 def serve_job(directory, env, log, accept_seconds=ACCEPT_SECONDS, max_seconds=MAX_SECONDS):
