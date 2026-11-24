@@ -78,7 +78,7 @@ jobs:
           - 'php@8.3'
           - 'php@8.4'
           - 'php'
-          - 'php@8.6'
+          - 'php@8.5'
           - 'php@8.7'
           - 'php@5.6-zts'
           - 'php@7.0-zts'
@@ -92,7 +92,7 @@ jobs:
           - 'php@8.3-zts'
           - 'php@8.4-zts'
           - 'php-zts'
-          - 'php@8.6-zts'
+          - 'php@8.5-zts'
           - 'php@8.7-zts'
           - 'php@5.6-debug'
           - 'php@7.0-debug'
@@ -106,7 +106,7 @@ jobs:
           - 'php@8.3-debug'
           - 'php@8.4-debug'
           - 'php-debug'
-          - 'php@8.6-debug'
+          - 'php@8.5-debug'
           - 'php@8.7-debug'
           - 'php@5.6-debug-zts'
           - 'php@7.0-debug-zts'
@@ -120,7 +120,7 @@ jobs:
           - 'php@8.3-debug-zts'
           - 'php@8.4-debug-zts'
           - 'php-debug-zts'
-          - 'php@8.6-debug-zts'
+          - 'php@8.5-debug-zts'
           - 'php@8.7-debug-zts'
     steps:
       - name: Print details
@@ -150,7 +150,7 @@ jobs:
 
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           commit-message: Update ${{ matrix.php }}

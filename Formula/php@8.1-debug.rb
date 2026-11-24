@@ -1,9 +1,9 @@
 class PhpAT81Debug < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/ae65ef4b9ede39ef9923643b741a89c23a2e1c7a.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/585c0ef8e836db7603181762c86bcd330c005abb.tar.gz"
   version "8.1.34"
-  sha256 "a13bdcef3787515a9cd300aa3643d4240e2bfc701abbc782734a02b25e470169"
+  sha256 "7350da0c5a6c0d5b285febc7d6e5e0516e8ae99dc0e6e8cf05b1dcd083b07beb"
   license all_of: [
     "PHP-3.01",
 
@@ -27,16 +27,17 @@ class PhpAT81Debug < Formula
     "TCL",                   # 7
     "Zlib",                  # 8
   ]
-  revision 4
+  revision 6
 
   bottle do
     root_url "https://ghcr.io/v2/shivammathur/php"
-    rebuild 2
-    sha256 arm64_golden_gate: "f056a9786297831ed469e179294fe185551530d2c074c6ff6087b992786ffe26"
-    sha256 arm64_tahoe:       "56846cd9047adce9b9fac3547dc2d5b52ba83a7f4805e40f772adf4c4118ee00"
-    sha256 arm64_sequoia:     "4cdf70924db8339fe317389f5b4abc448f0edb928558bc98bb8191ca4c42e635"
-    sha256 arm64_linux:       "453ac3377396d5fba92d9a4aa852d35e4f39b46a2c17841e5ec714663f35bfd0"
-    sha256 x86_64_linux:      "1fae6f20f68bd3344b3887b8a8f52fb5431573523c712d9e1dbf82df5accdeca"
+    rebuild 3
+    manifest_sha256 "9078b1c7b07d20b4da88728c50d7a5e92a464f99f7a6fa5eea7fd718b8cdb0d1"
+    sha256 arm64_golden_gate: "8cb55ea2faff123d1e71de34409feea400197d145e51501c2d1b9ddb917c0a7e"
+    sha256 arm64_tahoe:       "887749691f41843b506c4e9b13dd424785a78694d58e461671e71c3b57665a87"
+    sha256 arm64_sequoia:     "5d7e66963389f25229b2bf53f6b4f31a13a2c3b667b0f0ce2e5fbeebd7aca228"
+    sha256 arm64_linux:       "ce24dcd112903deb3a6c7efff81a3aab64eec873f28fc54b01d5b0f8bc322c22"
+    sha256 x86_64_linux:      "f5ddb0cd96fcdfcd3b8b66791f171e64a82c215d4882013fe53d2593b0072406"
   end
 
   keg_only :versioned_formula
@@ -58,7 +59,7 @@ class PhpAT81Debug < Formula
   depends_on "freetds"
   depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@78"
+  depends_on "icu4c@79"
   depends_on "krb5"
   depends_on "libpq"
   depends_on "libsodium"

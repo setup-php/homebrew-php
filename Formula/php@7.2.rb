@@ -1,21 +1,22 @@
 class PhpAT72 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/591bc8d42c53199ad7fe8298dce65701006a2abf.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/31b9324026a97a5255ffa24107c48c6e2a9c0a8b.tar.gz"
   version "7.2.34"
-  sha256 "6c45203a66c02bf2800b32120103e10575a0df964750ed1d2b1e7d06f7139b3e"
+  sha256 "c68605c387149e04a20b193fcb93c8b65a859b7ab3f4b77b12339f83d6583319"
   license "PHP-3.01"
-  revision 19
+  revision 20
   compatibility_version 1
 
   bottle do
     root_url "https://ghcr.io/v2/shivammathur/php"
-    rebuild 2
-    sha256 arm64_golden_gate: "56f8e5edabb4451ba9400882d875136d8906aec0ab2421ea08b0146c7f5a1594"
-    sha256 arm64_tahoe:       "3bc7c04d85824f7319e5dd039be576f472ce31e7a470d2448117c9d5f419a5f0"
-    sha256 arm64_sequoia:     "f1a7282099be1f2013e64bf6ebafb40519452e7776bf3cc794c48ede720a637f"
-    sha256 arm64_linux:       "3bd1e9596ea44ce6a208ead8edf53abdb9e3fc01202f44ec1244dae0c105125e"
-    sha256 x86_64_linux:      "d86d4d311b6254431acde60c7536e415be98482108724b8529b507b39193e1ef"
+    rebuild 3
+    manifest_sha256 "35edc2c2a1d42392f546b2b2352ac4df36869d75ee7d937f1a92fc7defef9956"
+    sha256 arm64_golden_gate: "1f787898ea701307dbe7e3a39b8a033e21c8a07698ec2e74552ebdc32901b44f"
+    sha256 arm64_tahoe:       "8352e9a1a19c898402eed696446cc676b3218b0a44f5c588afa2711693b2cb50"
+    sha256 arm64_sequoia:     "6aedb8b637782dc96013a48d9fab38f3a186e0cc7967c15a4317eb83dffe2c75"
+    sha256 arm64_linux:       "ce6ee06cc76578962cdc6cb7a2fc5707da29c8170b94c5811e7856a71fb4b974"
+    sha256 x86_64_linux:      "4077859749fdc6f93fc97a288cf8c1cb0becb4bf2c7193b93780d6325942b625"
   end
 
   keg_only :versioned_formula
@@ -40,7 +41,7 @@ class PhpAT72 < Formula
   depends_on "freetype"
   depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@78"
+  depends_on "icu4c@79"
   depends_on "jpeg"
   depends_on "krb5"
   depends_on "libpng"
@@ -135,7 +136,8 @@ class PhpAT72 < Formula
 
     if OS.mac?
       # Each extension needs a direct reference to the sdk path or it won't find the headers
-      headers_path = "=#{MacOS.sdk_for_formula(self).path}/usr"
+      sdk_path = MacOS.sdk_for_formula(self).path
+      headers_path = "=#{sdk_path}/usr"
       gettext_path = "=#{formula_opt_prefix("gettext")}"
     end
 
@@ -182,7 +184,7 @@ class PhpAT72 < Formula
       --with-gettext#{gettext_path}
       --with-gmp=#{formula_opt_prefix("gmp")}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{formula_opt_prefix("icu4c@78")}
+      --with-icu-dir=#{formula_opt_prefix("icu4c@79")}
       --with-jpeg-dir=#{formula_opt_prefix("jpeg")}
       --with-kerberos#{headers_path}
       --with-layout=GNU
