@@ -1,4 +1,4 @@
-name: Managed macOS runner
+name: Managed Homebrew runner
 run-name: Managed runner ${{ inputs.pool }}
 
 on:
@@ -15,13 +15,16 @@ on:
         required: true
         type: string
       image:
-        description: Namespace 4-vCPU/7-GB ARM64 host matching the runner profile
+        description: Namespace host image matching the runner profile
         required: true
         type: choice
         options:
           - nscloud-macos-sequoia-stable-arm64-4x7
           - nscloud-macos-tahoe-arm64-4x7
           - nscloud-macos-goldengate-arm64-4x7
+          - nscloud-ubuntu-24.04-amd64-4x8
+          - nscloud-ubuntu-22.04-amd64-4x8
+          - nscloud-ubuntu-22.04-arm64-4x8
 
 permissions:
   contents: read
@@ -38,7 +41,7 @@ jobs:
   runner:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
-    name: Single-job ${{ inputs.image }} ARM64 runner
+    name: Single-job ${{ inputs.image }} runner
     runs-on: ${{ inputs.image }}
     timeout-minutes: 360
     environment: ${{ inputs.pool }}

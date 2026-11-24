@@ -1,4 +1,4 @@
-"""Launch single-job Namespace macOS hosts only for uncovered queued jobs."""
+"""Launch single-job Namespace hosts only for uncovered queued jobs."""
 import collections
 import concurrent.futures
 import datetime
@@ -7,7 +7,7 @@ import os
 import secrets
 import subprocess
 
-from managed_profiles import PROFILES, TARGET, identify, labels
+from managed_profiles import PROFILES, TARGET, capacity_group, identify, labels
 
 HOST = 'setup-php/homebrew-php'
 MAX_HOSTS = 12
@@ -68,7 +68,7 @@ def matching_profile(job):
     return candidates[0] if len(candidates) == 1 else None
 
 
-def plan_launches(protected, runners, jobs, capacity):
+def plan_launches(protected, runners, jobs, capacity, linux_x64=0, linux_arm64=0):
     protected = set(protected)
     registered = {runner['name']: runner for runner in runners}
     consumed = {job.get('runner_name') for job in jobs if job['status'] != 'queued'}
@@ -90,7 +90,9 @@ def plan_launches(protected, runners, jobs, capacity):
     covered = dict(queued)
     deferred = dict(queued)
     planned = []
-    budget = max(0, capacity - len(protected))
+    budget = {'macos': capacity, 'x64': linux_x64, 'arm64': linux_arm64}
+    for key, slots in occupied.items():
+        budget[capacity_group(key)] -= len(slots)
     unique = {job['id']: job for job in jobs}
     for job in sorted(unique.values(), key=lambda job: (job.get('created_at') or '', job['id'])):
         if job['status'] != 'queued' or job.get('runner_name'):
@@ -105,13 +107,14 @@ def plan_launches(protected, runners, jobs, capacity):
             waiting.pop(match)
             covered[key] += 1
             continue
-        if not budget:
+        group = capacity_group(key)
+        if budget[group] <= 0:
             deferred[key] += 1
             continue
         number = next(slot for slot in range(1, MAX_HOSTS + 1) if slot not in occupied[key])
         occupied[key].add(number)
         planned.append((key, number))
-        budget -= 1
+        budget[group] -= 1
     return planned, queued, covered, deferred
 
 
@@ -143,8 +146,10 @@ def launch(number, now, key):
 
 def maintain():
     capacity = int(os.environ.get('HOST_CAPACITY', str(MAX_HOSTS)))
-    if not 0 <= capacity <= MAX_HOSTS:
-        raise ValueError('HOST_CAPACITY must be between zero and twelve')
+    linux_x64 = int(os.environ.get('LINUX_X64_CAPACITY', '0'))
+    linux_arm64 = int(os.environ.get('LINUX_ARM64_CAPACITY', '0'))
+    if not all(0 <= n <= MAX_HOSTS for n in (capacity, linux_x64, linux_arm64)):
+        raise ValueError('Pool capacities must be between zero and twelve')
     dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
     now = datetime.datetime.now(datetime.timezone.utc)
     since = (now - datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -188,10 +193,11 @@ def maintain():
             if not dry_run:
                 gh(f"repos/{HOST}/actions/runs/{run['id']}/cancel", 'POST')
                 print(f'Cancelled stale queued host {name}', flush=True)
-    planned, queued, covered, deferred = plan_launches(protected, runners, jobs, capacity)
+    planned, queued, covered, deferred = plan_launches(protected, runners, jobs, capacity, linux_x64, linux_arm64)
     print(json.dumps({'queued_jobs': queued, 'covered_by_existing_hosts': covered,
                       'active_hosts': len(active), 'reserved_hosts': len(protected),
-                      'host_capacity': capacity, 'launching_slots': planned,
+                      'host_capacity': capacity, 'linux_x64_capacity': linux_x64,
+                      'linux_arm64_capacity': linux_arm64, 'launching_slots': planned,
                       'capacity_deferred': deferred, 'dry_run': dry_run}), flush=True)
     if dry_run or not planned:
         return

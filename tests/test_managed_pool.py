@@ -41,8 +41,17 @@ class DemandPoolTests(unittest.TestCase):
         jobs = [job(3, 'xcode27'), job(1, 'macos15'), job(2, 'macos26')]
         self.assertEqual(controller.plan_launches(set(), [], jobs, 2)[0], [('macos15', 1), ('macos26', 1)])
         self.assertEqual(controller.matching_profile({'labels': ['SELF-HOSTED', 'macOS', 'arm64', 'MACOS-27']}), 'xcode27')
-        for unsupported in ([], ['macOS'], ['self-hosted'], ['ubuntu-latest'], ['macos-26', 'X64'], ['macos-15', 'custom']):
+        for unsupported in ([], ['macOS'], ['self-hosted'], ['ubuntu-20.04'], ['macos-26', 'X64'], ['macos-15', 'custom']):
             self.assertIsNone(controller.matching_profile({'labels': unsupported}))
+
+    def test_native_linux_queues_use_separate_architecture_budgets(self):
+        jobs = [job(1, 'linux-x64'), job(2, 'linux22-x64'), job(3, 'linux-arm64'), job(4)]
+        busy = registration('linux22-x64', busy=True)
+        planned, _, _, deferred = controller.plan_launches(
+            {busy['name']}, [busy], jobs, capacity=1, linux_x64=2, linux_arm64=1)
+        self.assertEqual(planned, [('linux-x64', 1), ('linux-arm64', 1), ('macos15', 1)])
+        self.assertEqual(deferred['linux22-x64'], 1)
+        self.assertIsNone(controller.matching_profile({'labels': ['ubuntu-22.04-arm', 'X64']}))
 
     def test_completed_running_or_already_assigned_jobs_do_not_create_hosts(self):
         jobs = [job(1, status='completed'), job(2, status='in_progress'), job(3, runner_name='assigned')]

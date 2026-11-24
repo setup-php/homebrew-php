@@ -25,6 +25,24 @@ PROFILES = {
     },
 }
 
+# ubuntu-latest jobs use 24.04 x64. The two numbered labels must stay on
+# Jammy even when a container supplies the build userland.
+for key, image, label, platform, arch in (
+    ('linux-x64', 'nscloud-ubuntu-24.04-amd64-4x8', 'ubuntu-latest', 'ubuntu-latest', 'x64'),
+    ('linux22-x64', 'nscloud-ubuntu-22.04-amd64-4x8', 'ubuntu-22.04', 'ubuntu-22.04', 'x64'),
+    ('linux-arm64', 'nscloud-ubuntu-22.04-arm64-4x8', 'ubuntu-22.04-arm', 'ubuntu-22.04', 'arm64'),
+):
+    PROFILES[key] = {
+        'prefix': f'runner-pool-hb-{key}-', 'arch': arch, 'platform': platform,
+        'image': image, 'labels': (label,), 'system': 'Linux',
+        'workflow': 'managed-runner.yml', 'limit': 12,
+    }
+
+
+def capacity_group(key):
+    profile = PROFILES[key]
+    return 'macos' if profile['system'] == 'macOS' else profile['arch']
+
 
 def identify(name):
     for key, profile in PROFILES.items():
